@@ -1,0 +1,16 @@
+{
+  "name": "Pra Comer PDV Pro",
+  "short_name": "PraComer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#00994d",
+  "theme_color": "#00994d",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/5787/5787016.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

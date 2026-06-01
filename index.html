@@ -3,609 +3,272 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Pra Comer • PDV Profissional ERP (Cloud Backend)</title>
+    <title>PDV Profissional ERP</title>
+    <link rel="manifest" href="/manifest.json">
     <style>
         :root {
-            --primary: #ff5e14;
-            --primary-hover: #e04f0f;
-            --primary-light: #fff0ea;
-            --background: #f1f5f9;
+            --primary: #00994d; /* Verde igual ao da imagem 01-1.jpg */
+            --primary-hover: #007a3d;
+            --dark-menu: #23272b; /* Fundo escuro do menu lateral */
+            --background: #f4f6f9;
             --surface: #ffffff;
-            --text: #0f172a;
-            --text-secondary: #475569;
-            --success: #10b981;
-            --success-hover: #059669;
-            --danger: #ef4444;
-            --danger-hover: #dc2626;
-            --warning: #f59e0b;
-            --border: #cbd5e1;
-            --radius-lg: 12px;
-            --radius-md: 8px;
-            --radius-sm: 4px;
+            --text: #333333;
+            --border: #dee2e6;
         }
 
         * { box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; padding: 0; }
-        body { background-color: var(--background); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        body { background-color: var(--background); color: var(--text); display: flex; height: 100vh; overflow: hidden; }
+
+        /* MENU LATERAL (Inspirado na imagem 01-1.jpg) */
+        .sidebar { background: var(--dark-menu); width: 65px; display: flex; flex-direction: column; align-items: center; padding-top: 15px; gap: 20px; }
+        .sidebar-btn { background: none; border: none; color: #a2a3a5; font-size: 22px; cursor: pointer; width: 100%; padding: 12px 0; transition: 0.2s; text-align: center; }
+        .sidebar-btn:hover, .sidebar-btn.active { color: #fff; background: rgba(255,255,255,0.05); border-left: 4px solid var(--primary); }
+
+        /* ÁREA PRINCIPAL */
+        .main-layout { flex: 1; display: flex; flex-direction: column; }
+
+        /* BARRA SUPERIOR VERDE */
+        .topbar { background: var(--primary); color: white; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+        .topbar-brand { font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 8px; }
+        .topbar-menu { display: flex; gap: 20px; align-items: center; }
+        .topbar-link { color: white; text-decoration: none; font-weight: 600; cursor: pointer; }
+
+        /* CONTEÚDO DO PDV (Divisão Esquerda e Direita) */
+        .workspace { flex: 1; display: flex; padding: 15px; gap: 15px; overflow: hidden; }
         
-        #login-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(15,23,42,0.95); z-index:9999; display:flex; justify-content:center; align-items:center; }
-        .login-card { background: white; padding: 32px; border-radius: var(--radius-lg); width: 100%; max-width: 400px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
-
-        .topbar { background: #ffffff; padding: 12px 24px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
-        .topbar h1 { font-size: 20px; font-weight: 800; }
-        .topbar h1 span { color: var(--primary); }
-        .user-badge { background: var(--primary-light); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-weight: 700; font-size: 13px; }
+        /* PAINEL DA ESQUERDA (CUPOM E PAGAMENTO) */
+        .left-panel { width: 420px; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: flex; flex-direction: column; padding: 15px; }
         
-        .tabs { display: flex; background: var(--surface); padding: 6px 24px; border-bottom: 1px solid var(--border); gap: 4px; overflow-x: auto; }
-        .tab-btn { background: none; border: none; color: var(--text-secondary); padding: 10px 16px; font-size: 13px; font-weight: 600; cursor: pointer; border-radius: var(--radius-md); white-space: nowrap; }
-        .tab-btn.active { color: var(--primary); background: var(--primary-light); font-weight: 700; }
+        /* PAINEL DA DIREITA (GRADE DE PRODUTOS) */
+        .right-panel { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 4px; display: flex; flex-direction: column; padding: 15px; }
 
-        .main-container { flex: 1; padding: 16px; overflow-y: auto; display: none; }
-        .main-container.active { display: flex; gap: 16px; }
-        
-        .panel { background: var(--surface); border-radius: var(--radius-lg); padding: 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); display: flex; flex-direction: column; border: 1px solid var(--border); }
-        .flex-1 { flex: 1; } .flex-1-5 { flex: 1.5; } .flex-2 { flex: 2; }
-        .panel h3 { margin-bottom: 14px; padding-bottom: 8px; color: var(--text); font-size: 16px; font-weight: 700; border-bottom: 2px solid var(--background); display: flex; justify-content: space-between; align-items: center; }
+        /* SELEÇÃO DE CLIENTE E PESQUISA POR CÓDIGO BARRAS / TECLADO */
+        .search-box { background: #f8f9fa; border: 1px solid var(--border); padding: 5px 10px; border-radius: 4px; font-size: 14px; width: 100%; outline: none; margin-top: 8px; }
+        .search-box:focus { border-color: var(--primary); }
 
-        .form-group { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
-        .form-group label { font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; }
-        input, select { padding: 10px; border-radius: var(--radius-md); border: 1px solid var(--border); font-size: 13px; background: #f8fafc; outline: none; }
-        input:focus, select:focus { border-color: var(--primary); background: #fff; }
-        
-        button { border: none; padding: 10px 16px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: all 0.1s; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
-        button:active { transform: scale(0.98); }
-        .btn-success { background: var(--success); color: white; }
-        .btn-danger { background: var(--danger); color: white; }
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-warning { background: var(--warning); color: white; }
-        .btn-secondary { background: #64748b; color: white; }
+        /* TABELA DE ITENS LANCADOS */
+        .table-container { flex: 1; overflow-y: auto; margin-top: 15px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13px; }
+        th, td { padding: 8px; border-bottom: 1px solid var(--border); }
+        th { background: #e9ecef; font-weight: 600; }
 
-        .grid-produtos { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; overflow-y: auto; max-height: 480px; }
-        .card-prod { background: var(--surface); border: 1px solid var(--border); padding: 12px; border-radius: var(--radius-md); text-align: center; cursor: pointer; position: relative; }
-        .card-prod:hover { border-color: var(--primary); }
-        .card-prod .nome-item { font-size: 12px; font-weight: 700; }
-        .badge-estoque { position: absolute; top: 4px; right: 4px; background: #e2e8f0; color: var(--text-secondary); font-size: 9px; padding: 1px 4px; border-radius: var(--radius-lg); }
+        /* CAIXA DE TOTAIS E VALORES (Igual imagem 01-1.jpg) */
+        .summary-box { background: #eef2f7; padding: 12px; border-radius: 4px; margin-top: 15px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+        .summary-row { display: flex; justify-content: space-between; }
+        .total-row { font-size: 18px; font-weight: bold; color: #111; border-top: 1px solid var(--border); padding-top: 6px; margin-top: 4px; }
 
-        .grid-comandas { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 12px; }
-        .card-comanda { background: var(--surface); border-left: 4px solid var(--warning); padding: 14px; border-radius: var(--radius-md); cursor: pointer; border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        /* BOTÕES DE AÇÃO INFERIORES */
+        .action-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 12px; }
+        .btn { border: none; padding: 12px; font-weight: bold; color: white; border-radius: 4px; cursor: pointer; font-size: 13px; text-align: center; }
+        .btn-orange { background: #ff9800; }
+        .btn-purple { background: #673ab7; }
+        .btn-red { background: #e53935; }
+        .btn-blue { background: #1e88e5; }
+        .btn-green { background: var(--primary); grid-column: span 2; font-size: 16px; padding: 15px; }
 
-        table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 10px; text-align: left; border-bottom: 1px solid var(--border); font-size: 12px; }
-        th { background: #f8fafc; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; font-size: 10px; }
-        
-        .total-box { margin-top: auto; padding-top: 12px; border-top: 2px solid var(--background); }
-        .total-row { display: flex; justify-content: space-between; font-size: 20px; font-weight: 800; margin-bottom: 10px; }
-        
-        .metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 16px; width: 100%; }
-        .metric-card { background: var(--surface); padding: 14px; border-radius: var(--radius-lg); border: 1px solid var(--border); border-left: 4px solid var(--primary); }
-        .metric-card h4 { color: var(--text-secondary); font-size: 10px; text-transform: uppercase; }
-        .metric-card p { font-size: 20px; font-weight: 800; margin-top: 4px; }
-        
-        .chart-bar-container { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; font-size: 12px; }
-        .chart-bar-label { width: 80px; font-weight: 600; text-overflow: ellipsis; overflow: hidden; }
-        .chart-bar-track { flex: 1; background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden; }
-        .chart-bar-fill { background: var(--primary); height: 100%; width: 0%; transition: width 0.3s; }
-
-        .log-container { background: #0f172a; color: #f8fafc; font-family: monospace; padding: 12px; border-radius: var(--radius-md); max-height: 150px; overflow-y: auto; font-size: 11px; }
-
-        #secao-impressao { display: none; }
-
-        @media print {
-            body * { display: none !important; }
-            #secao-impressao { display: block !important; width: 300px; font-family: monospace; font-size: 12px; color: #000; padding: 10px; }
-            #secao-impressao hr { border-top: 1px dashed #000; margin: 8px 0; }
-            .txt-centro { text-align: center; }
-            .txt-direita { text-align: right; }
-        }
+        /* GRADE DE PRODUTOS COM FOTO GOURMET */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; overflow-y: auto; margin-top: 15px; }
+        .product-card { border: 1px solid var(--border); border-radius: 4px; overflow: hidden; text-align: center; background: #fff; cursor: pointer; transition: 0.2s; position: relative; }
+        .product-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .product-img { width: 100%; height: 95px; object-fit: cover; background: #fafafa; }
+        .product-info { padding: 8px; font-size: 11px; font-weight: bold; text-transform: uppercase; color: #444; }
+        .product-price { color: var(--primary); font-weight: bold; font-size: 13px; margin-top: 4px; }
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div class="login-card">
-            <h2 style="margin-bottom:16px; text-align:center;">🔐 Acesso Operador</h2>
-            <div class="form-group">
-                <label>Nome de Usuário</label>
-                <input type="text" id="login-username" placeholder="Ex: admin ou carlos">
-            </div>
-            <div class="form-group">
-                <label>Senha de Segurança</label>
-                <input type="password" id="login-password" placeholder="••••••••">
-            </div>
-            <button class="btn-primary" style="width:100%; padding:12px;" onclick="efetuarLogin()">Abrir Painel de Vendas</button>
-            <p style="font-size:11px; color:gray; text-align:center; margin-top:12px;">Padrão: admin | senha: 123</p>
-        </div>
+    <!-- MENU LATERAL (PADRÃO 01-1.jpg) -->
+    <div class="sidebar">
+        <button class="sidebar-btn active" title="PDV Balcão">🛒</button>
+        <button class="sidebar-btn" title="Mesas e Comandas">📋</button>
+        <button class="sidebar-btn" title="Cozinha KDS">👨‍🍳</button>
+        <button class="sidebar-btn" title="Controle de Estoque">📦</button>
+        <button class="sidebar-btn" title="Financeiro & DRE">💰</button>
+        <button class="sidebar-btn" title="Configurações">⚙️</button>
     </div>
 
-    <div id="secao-impressao"></div>
-
-    <div class="topbar">
-        <h1>🍔 Pra Comer <span>• PDV CLOUD</span></h1>
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span class="user-badge" id="operador-nome">Operador: --</span>
-            <div id="clock" style="font-size:12px; font-weight:600;">--/--/---- --:--:--</div>
-        </div>
-    </div>
-
-    <div class="tabs">
-        <button class="tab-btn active" onclick="switchTab('caixa')">🛒 Balcão/Venda</button>
-        <button class="tab-btn" onclick="switchTab('comandas')">📝 Mesas & Comandas</button>
-        <button class="tab-btn" onclick="switchTab('produtos')">📦 Produtos & Equipe</button>
-        <button class="tab-btn" onclick="switchTab('financeiro')">📊 Relatórios & Caixa</button>
-    </div>
-
-    <div id="tab-caixa" class="main-container active">
-        <div class="panel flex-2">
-            <h3>Cardápio Balcão <input type="text" id="search-input" placeholder="🔍 Filtrar..." oninput="filtrarProdutos()" style="width:180px; padding:6px;"></h3>
-            <div id="cardapio" class="grid-produtos"></div>
-        </div>
-        <div class="panel flex-1">
-            <h3>Carrinho Corrente</h3>
-            <div style="flex:1; overflow-y:auto; max-height:200px; margin-bottom:12px; border:1px solid var(--border); border-radius:var(--radius-md);">
-                <table>
-                    <thead><tr><th>Item</th><th>Qtd</th><th>Sub</th><th></th></tr></thead>
-                    <tbody id="itens-carrinho"></tbody>
-                </table>
-            </div>
-            <div class="total-box">
-                <div class="total-row"><span>Total:</span><span style="color:var(--primary)">R$ <span id="total-venda">0.00</span></span></div>
-                <div class="form-group">
-                    <label>Pagamento</label>
-                    <select id="forma-pagamento" onchange="toggleTroco('balcao')">
-                        <option value="Dinheiro">💵 Dinheiro</option>
-                        <option value="Pix">⚡ Pix</option>
-                        <option value="Cartão de Crédito">💳 Crédito</option>
-                        <option value="Cartão de Débito">💳 Débito</option>
-                    </select>
-                </div>
-                <div class="form-group" id="group-troco">
-                    <label>Valor Recebido</label>
-                    <input type="number" id="valor-recebido" step="0.01" oninput="calcularTroco('balcao')">
-                    <div style="margin-top:4px; font-weight:700; color:var(--primary); font-size:12px;">Troco: R$ <span id="valor-troco">0.00</span></div>
-                </div>
-                <button class="btn-primary" style="width:100%; margin-top:6px;" onclick="finalizarVendaBalcao()">Concluir e Emitir 🖨️</button>
+    <!-- CORPO CENTRAL -->
+    <div class="main-layout">
+        
+        <!-- BARRA SUPERIOR VERDE -->
+        <div class="topbar">
+            <div class="topbar-brand">💻 PDV MULTILOJA v2.0</div>
+            <div id="clock" style="font-weight: 600;">01/06/2026 16:42:00</div>
+            <div class="topbar-menu">
+                <span class="topbar-link">📊 Histórico de Vendas</span>
+                <span class="topbar-link">🔑 Fechar Caixa</span>
+                <span style="display:flex; align-items:center; gap:5px; font-weight:600;">👤 Funcionário Teste</span>
             </div>
         </div>
-    </div>
 
-    <div id="tab-comandas" class="main-container">
-        <div class="flex-2" style="display:flex; flex-direction:column; gap:16px;">
-            <div class="panel" style="flex-direction:row; gap:12px; align-items:flex-end;">
-                <div class="form-group" style="margin-bottom:0; flex:1;"><label>Comanda/Mesa</label><input type="text" id="c-nome-comanda" placeholder="Nº Mesa"></div>
-                <button class="btn-success" onclick="abrirComanda()">Abrir 📝</button>
-            </div>
-            <div class="panel" style="flex:1;">
-                <h3>Mesas Ativas</h3>
-                <div id="lista-comandas" class="grid-comandas"></div>
-            </div>
-        </div>
-        <div class="panel flex-1" id="panel-controle-comanda">
-            <h3 id="detalhe-titulo">Nenhuma Selecionada</h3>
-            <div id="conteudo-comanda-selecionada" style="display:none; flex-direction:column; flex:1;">
-                <select id="select-add-item-comanda" style="margin-bottom:12px;" onchange="adicionarItemNaComandaAtiva()"></select>
-                <div style="flex:1; overflow-y:auto; max-height:180px; margin-bottom:12px; border:1px solid var(--border); border-radius:var(--radius-md);">
-                    <table>
-                        <thead><tr><th>Item</th><th>Qtd</th><th>Subtotal</th></tr></thead>
-                        <tbody id="itens-comanda-corrente"></tbody>
-                    </table>
-                </div>
-                <div class="total-box">
-                    <div class="total-row"><span>Total:</span><span style="color:var(--warning)">R$ <span id="total-comanda-corrente">0.00</span></span></div>
-                    <div class="form-group">
-                        <label>Pagamento</label>
-                        <select id="forma-pagamento-comanda" onchange="toggleTroco('comanda')"><option value="Dinheiro">💵 Dinheiro</option><option value="Pix">⚡ Pix</option><option value="Cartão de Crédito">💳 Crédito</option><option value="Cartão de Débito">💳 Débito</option></select>
-                    </div>
-                    <div class="form-group" id="group-troco-comanda">
-                        <label>Valor Recebido</label><input type="number" id="valor-recebido-comanda" step="0.01" oninput="calcularTroco('comanda')">
-                        <div style="margin-top:4px; font-weight:700; color:var(--warning); font-size:12px;">Troco: R$ <span id="valor-troco-comanda">0.00</span></div>
-                    </div>
-                    <button class="btn-warning" style="width:100%;" onclick="finalizarFechamentoComanda()">Liquidar e Imprimir 🖨️</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-produtos" class="main-container">
-        <div style="display:flex; flex-direction:column; gap:16px; flex:1;">
-            <div class="panel">
-                <h3 id="form-prod-titulo">Cadastrar Novo Item</h3>
-                <input type="hidden" id="p-id-edicao">
-                <div class="form-group"><label>Nome</label><input type="text" id="p-nome"></div>
-                <div class="form-group"><label>Preço (R$)</label><input type="number" id="p-preco" step="0.05"></div>
-                <div class="form-group"><label>Estoque Atual</label><input type="number" id="p-estoque"></div>
-                <div style="display:flex; gap:8px;">
-                    <button class="btn-secondary" id="btn-cancelar-edicao" style="display:none;" onclick="cancelarEdicaoProduto()">Cancelar</button>
-                    <button class="btn-success" style="flex:1;" onclick="salvarProduto()">Salvar Produto</button>
-                </div>
-            </div>
-
-            <div class="panel" style="border-color: #a855f7;">
-                <h3 style="border-bottom-color: #f3e8ff;">👥 Cadastrar Usuário Autorizado</h3>
-                <div class="form-group"><label>Login de Usuário</label><input type="text" id="u-usuario" placeholder="Ex: carlos"></div>
-                <div class="form-group"><label>Senha</label><input type="password" id="u-senha" placeholder="Digite a senha"></div>
-                <div class="form-group">
-                    <label>Função</label>
-                    <select id="u-cargo">
-                        <option value="Caixa">🛒 Operador de Caixa</option>
-                        <option value="Garçom">📝 Atendente / Garçom</option>
-                        <option value="Gerente">👑 Gerente / Admin</option>
-                    </select>
-                </div>
-                <button class="btn-primary" style="background:#a855f7;" onclick="cadastrarNovoUsuario()">Salvar Acesso</button>
+        <!-- ESPAÇO DE TRABALHO -->
+        <div class="workspace">
+            
+            <!-- PAINEL DA ESQUERDA: LISTA DA COMPRA ATUAL -->
+            <div class="left-panel">
+                <select class="search-box" style="font-weight: bold;">
+                    <option>Cliente Padrão</option>
+                </select>
+                <!-- Input Inteligente: Aceita Teclado, Código de Barras ou Leitor QR Code -->
+                <input type="text" class="search-box" id="barcode-input" placeholder="Procure o produto pelo código, nome ou código de barras..." autofocus>
                 
-                <h4 style="margin-top:14px; font-size:11px; text-transform:uppercase; color:var(--text-secondary);">Usuários Ativos:</h4>
-                <div style="overflow-y:auto; max-height:120px; border:1px solid var(--border); border-radius:var(--radius-md); margin-top:6px;">
+                <div class="table-container">
                     <table>
-                        <thead><tr><th>Usuário</th><th>Cargo</th><th>Ação</th></tr></thead>
-                        <tbody id="tabela-usuarios-autorizados"></tbody>
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th style="text-align:right;">Preço</th>
+                                <th style="text-align:center;">Qtd</th>
+                                <th style="text-align:right;">Subtotal</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="cart-rows">
+                            <!-- Inserção via JavaScript dinâmico -->
+                        </tbody>
                     </table>
                 </div>
-            </div>
-        </div>
 
-        <div class="panel flex-2">
-            <h3>Gerenciamento de Grade Geral</h3>
-            <div style="overflow-y:auto; max-height:500px; border:1px solid var(--border); border-radius:var(--radius-md);">
-                <table>
-                    <thead><tr><th>ID</th><th>Nome</th><th>Preço</th><th>Estoque</th><th>Ações</th></tr></thead>
-                    <tbody id="tabela-estoque-geral"></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <div id="tab-financeiro" class="main-container">
-        <div style="display:flex; flex-direction:column; gap:16px; width:100%;">
-            <div class="panel" style="flex-direction:row; gap:12px; justify-content:space-between; align-items:center;">
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <label style="font-size:12px; font-weight:700;">Filtro Temporal:</label>
-                    <select id="filtro-periodo" onchange="atualizarFinanceiroELogs()">
-                        <option value="diario">📅 Relatório Diário (Hoje)</option>
-                        <option value="mensal">📅 Relatório Mensal (Mês Atual)</option>
-                        <option value="todos">🗂️ Histórico Geral Completo</option>
-                    </select>
+                <!-- TOTAIS IGUAL DA IMAGEM EXPLICATIVA -->
+                <div class="summary-box">
+                    <div class="summary-row"><span>Total de Itens</span><span id="txt-qtd-itens">0 (0.00)</span><span>Total</span><span id="txt-subtotal">R$ 0.00</span></div>
+                    <div class="summary-row"><span>Desconto</span><span id="txt-desconto">(0.00) 0.00</span><span>Taxa / Gorjeta</span><span id="txt-taxa">0.00</span></div>
+                    <div class="summary-row total-row"><span>Total a Pagar</span><span id="txt-total-pagar">R$ 0.00</span></div>
                 </div>
-                <button class="btn-danger" onclick="efetuarFechamentoCaixaCompleto()">🏁 Fechamento de Caixa</button>
-            </div>
 
-            <div class="metrics">
-                <div class="metric-card"><h4>Faturamento Período</h4><p id="m-faturamento" style="color:var(--success)">R$ 0.00</p></div>
-                <div class="metric-card" style="border-left-color:var(--warning);"><h4>Total de Vendas</h4><p id="m-pedidos">0</p></div>
-                <div class="metric-card" style="border-left-color:#a855f7;"><h4>Ticket Médio</h4><p id="m-ticket">R$ 0.00</p></div>
-            </div>
-
-            <div style="display:flex; gap:16px;">
-                <div class="panel flex-1">
-                    <h3>Dashboard de Faturamento por Método</h3>
-                    <div id="dashboard-metodos-grafico" style="padding:10px 0;"></div>
-                </div>
-                <div class="panel flex-1">
-                    <h3>Auditoria de Logs</h3>
-                    <div id="log-display" class="log-container"></div>
+                <!-- ACÕES DO TECLADO / CLIQUE -->
+                <div class="action-grid">
+                    <button class="btn btn-orange" onclick="alert('Venda em espera (Aguardar)')">Aguardar</button>
+                    <button class="btn btn-purple" onclick="alert('Ver Itens / Descontos')">Ver Itens</button>
+                    <button class="btn btn-red" onclick="limparCarrinhoCompleto()">Cancelar</button>
+                    <button class="btn btn-blue" onclick="alert('Ver Fatura Atual')">Ver Fatura</button>
+                    <button class="btn btn-green" onclick="abrirModalPagamento()">💸 Ir para o Pagamento</button>
                 </div>
             </div>
 
-            <div class="panel">
-                <h3>Livro de Entradas / Cupons Lançados</h3>
-                <div style="overflow-y:auto; max-height:200px; border:1px solid var(--border); border-radius:var(--radius-md);">
-                    <table>
-                        <thead><tr><th>Cod</th><th>Data/Hora</th><th>Operador</th><th>Descrição Itens</th><th>Forma</th><th>Total</th><th>Ação</th></tr></thead>
-                        <tbody id="tabela-historico"></tbody>
-                    </table>
+            <!-- PAINEL DA DIREITA: CARDÁPIO COM IMAGENS -->
+            <div class="right-panel">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2 style="font-size: 16px; font-weight: bold; color:#555;">💥 Cardápio Rápido de Frente de Loja</h2>
+                </div>
+                
+                <div class="products-grid" id="menu-produtos-grid">
+                    <!-- Gerado dinamicamente com fotos reais igual imagem 01-1.jpg -->
                 </div>
             </div>
+
         </div>
     </div>
 
     <script>
-       const API_URL = `${window.location.origin}/api`;
-        let produtos = [];
-        let historicoVendas = [];
-        let comandas = [];
-        let logsAtividades = [];
-        let usuarios = [];
+        // Registro do Service Worker (Ativa o funcionamento PWA Offline)
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(() => console.log("PWA Ativo Offline!"));
+        }
+
+        // Variáveis globais do carrinho
         let carrinho = [];
-        let comandaSelecionadaId = null;
-        let operadorAtual = "";
+        const API_URL = `${window.location.origin}/api`;
 
-        // Puxa as informações direto das APIs do Servidor Node
-        async function carregarDadosDoBanco() {
-            try {
-                const resProds = await fetch(`${API_URL}/produtos`); produtos = await resProds.json();
-                const resVendas = await fetch(`${API_URL}/vendas`); historicoVendas = await resVendas.json();
-                const resComandas = await fetch(`${API_URL}/comandas`); comandas = await resComandas.json();
-                const resLogs = await fetch(`${API_URL}/logs`); logsAtividades = await resLogs.json();
-                const resUsers = await fetch(`${API_URL}/usuarios`); usuarios = await resUsers.json();
-                
-                renderizarInterfaceGeral();
-            } catch (err) {
-                console.error("Erro ao conectar no servidor", err);
+        // Mock de produtos simulando exatamente a imagem do usuário (01-1.jpg)
+        const produtosExemplo = [
+            { id: 101, nome: "BATATA FRITA TRADICIONAL", preco: 15.00, img: "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=200" },
+            { id: 102, nome: "HAMBURGUER KISS GOURMET", preco: 26.40, img: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=200" },
+            { id: 103, nome: "ÁGUA MINERAL 500ML", preco: 3.30, img: "https://images.unsplash.com/photo-1608885898957-a599fb1b4641?w=200" },
+            { id: 104, nome: "SCHWEPPES CITRUS LATA", preco: 5.50, img: "https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=200" },
+            { id: 105, nome: "PIZZA BROTINHO PEPPERONI", preco: 35.20, img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=200" }
+        ];
+
+        function renderizarCardapio() {
+            const grid = document.getElementById('menu-produtos-grid');
+            grid.innerHTML = '';
+            produtosExemplo.forEach(p => {
+                grid.innerHTML += `
+                    <div class="product-card" onclick="adicionarAoCarrinho(${p.id})">
+                        <img class="product-img" src="${p.img}">
+                        <div class="product-info">
+                            <div>${p.nome}</div>
+                            <div class="product-price">R$ ${p.preco.toFixed(2)}</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function adicionarAoCarrinho(id) {
+            const prod = produtosExemplo.find(p => p.id === id);
+            const itemExistente = carrinho.find(i => i.id === id);
+            if (itemExistente) {
+                itemExistente.qtd++;
+                itemExistente.subtotal = itemExistente.qtd * itemExistente.preco;
+            } else {
+                carrinho.push({ id: prod.id, nome: prod.nome, preco: prod.preco, qtd: 1, subtotal: prod.preco });
             }
+            atualizarInterfaceCarrinho();
         }
 
-        async function registrarLog(msg) {
-            const novoLog = { hora: new Date().toLocaleTimeString('pt-BR'), txt: `[${operadorAtual}] ${msg}` };
-            await fetch(`${API_URL}/logs`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(novoLog) });
-            carregarDadosDoBanco();
-        }
+        function atualizarInterfaceCarrinho() {
+            const tbody = document.getElementById('cart-rows');
+            tbody.innerHTML = '';
+            let total = 0;
+            let totalItens = 0;
 
-        async function efetuarLogin() {
-            const usuario = document.getElementById('login-username').value.trim();
-            const senha = document.getElementById('login-password').value;
-
-            const res = await fetch(`${API_URL}/login`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ usuario, senha })
+            carrinho.forEach((item, index) => {
+                total += item.subtotal;
+                totalItens += item.qtd;
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight:600; color: #ff9800;">${item.nome}</td>
+                        <td style="text-align:right;">R$ ${item.preco.toFixed(2)}</td>
+                        <td style="text-align:center;"><input type="number" value="${item.qtd}" style="width:40px; text-align:center;" onchange="mudarQtd(${index}, this.value)"></td>
+                        <td style="text-align:right; font-weight:700;">R$ ${item.subtotal.toFixed(2)}</td>
+                        <td style="color:red; cursor:pointer; font-weight:bold;" onclick="removerItem(${index})">❌</td>
+                    </tr>
+                `;
             });
 
-            if (res.status !== 200) return alert("Usuário ou senha incorretos!");
-            
-            const dados = await res.json();
-            operadorAtual = dados.usuario;
-            document.getElementById('operador-nome').innerText = `Operador: ${operadorAtual} (${dados.cargo})`;
-            document.getElementById('login-overlay').style.display = 'none';
-            registrarLog("Autenticou no terminal.");
+            document.getElementById('txt-qtd-itens').innerText = `${carrinho.length} (${totalItens.toFixed(2)})`;
+            document.getElementById('txt-subtotal').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('txt-total-pagar').innerText = `R$ ${total.toFixed(2)}`;
         }
 
-        async function cadastrarNovoUsuario() {
-            const usuario = document.getElementById('u-usuario').value.trim().toLowerCase();
-            const senha = document.getElementById('u-senha').value;
-            const cargo = document.getElementById('u-cargo').value;
-
-            if(!usuario || !senha) return alert("Preencha todos os campos do operador.");
-
-            await fetch(`${API_URL}/usuarios`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ usuario, senha, cargo })
-            });
-
-            document.getElementById('u-usuario').value = '';
-            document.getElementById('u-senha').value = '';
-            carregarDadosDoBanco();
+        function mudarQtd(index, valor) {
+            if(valor <= 0) return removerItem(index);
+            carrinho[index].qtd = parseInt(valor);
+            carrinho[index].subtotal = carrinho[index].qtd * carrinho[index].preco;
+            atualizarInterfaceCarrinho();
         }
 
-        async function deletarUsuario(idUsuario) {
-            if(idUsuario === 'admin') return alert("O administrador master não pode ser removido.");
-            if(confirm(`Bloquear acesso de ${idUsuario}?`)) {
-                await fetch(`${API_URL}/usuarios/${idUsuario}`, { method: 'DELETE' });
-                carregarDadosDoBanco();
-            }
+        function removerItem(index) {
+            carrinho.splice(index, 1);
+            atualizarInterfaceCarrinho();
         }
 
-        async function salvarProduto() {
-            const id = document.getElementById('p-id-edicao').value;
-            const nome = document.getElementById('p-nome').value.trim();
-            const preco = parseFloat(document.getElementById('p-preco').value);
-            const estoque = parseInt(document.getElementById('p-estoque').value) || 0;
-
-            if(!nome || isNaN(preco)) return alert("Preencha a grade corretamente.");
-
-            await fetch(`${API_URL}/produtos`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ id: id ? parseInt(id) : null, nome, preco, estoque })
-            });
-
-            cancelarEdicaoProduto();
-            carregarDadosDoBanco();
-        }
-
-        async function deletarProduto(id) {
-            if(confirm("Deseja apagar esse produto definitivamente?")) {
-                await fetch(`${API_URL}/produtos/${id}`, { method: 'DELETE' });
-                carregarDadosDoBanco();
-            }
-        }
-
-        async function finalizarVendaBalcao() {
-            if(carrinho.length === 0) return;
-            const total = parseFloat(document.getElementById('total-venda').innerText);
-            const forma = document.getElementById('forma-pagamento').value;
-
-            const novaVenda = { data: new Date().toLocaleString('pt-BR'), timestamp: new Date().getTime(), operador: operadorAtual, itens: carrinho, formaPagamento: forma, total: total };
-            
-            await fetch(`${API_URL}/vendas`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(novaVenda)
-            });
-
-            imprimirCupomFrenteCaixa(novaVenda);
+        function limparCarrinhoCompleto() {
             carrinho = [];
-            atualizarCarrinhoVisual();
-            carregarDadosDoBanco();
+            atualizarInterfaceCarrinho();
         }
 
-        async function abrirComanda() {
-            const iden = document.getElementById('c-nome-comanda').value.trim();
-            if(!iden) return;
-            await fetch(`${API_URL}/comandas`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ identificador: iden, itens: [], total: 0 })
-            });
-            document.getElementById('c-nome-comanda').value = '';
-            carregarDadosDoBanco();
-        }
-
-        async function adicionarItemNaComandaAtiva() {
-            if(comandaSelecionadaId === null) return;
-            const select = document.getElementById('select-add-item-comanda');
-            const pId = parseInt(select.value); if(!pId) return;
-            const comanda = comandas.find(c => c.id === comandaSelecionadaId);
-            const prod = produtos.find(p => p.id === pId);
-
-            const exist = comanda.itens.find(i => i.id === pId);
-            if(exist) { exist.qtd++; exist.subtotal = exist.qtd * exist.preco; }
-            else { comanda.itens.push({ id: prod.id, nome: prod.nome, preco: prod.preco, qtd: 1, subtotal: prod.preco }); }
-            comanda.total = comanda.itens.reduce((acc, i) => acc + i.subtotal, 0);
-
-            await fetch(`${API_URL}/comandas`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(comanda)
-            });
-            select.value = '';
-            carregarDadosDoBanco();
-        }
-
-        async function finalizarFechamentoComanda() {
-            if(comandaSelecionadaId === null) return;
-            const comanda = comandas.find(c => c.id === comandaSelecionadaId);
-            const forma = document.getElementById('forma-pagamento-comanda').value;
-
-            const novaVenda = { data: new Date().toLocaleString('pt-BR'), timestamp: new Date().getTime(), operador: operadorAtual, itens: comanda.itens, formaPagamento: forma, total: comanda.total };
-            
-            await fetch(`${API_URL}/vendas`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(novaVenda) });
-            await fetch(`${API_URL}/comandas/${comanda.id}`, { method: 'DELETE' });
-
-            imprimirCupomFrenteCaixa(novaVenda);
-            comandaSelecionadaId = null;
-            fecharPainelLateralComanda();
-            carregarDadosDoBanco();
-        }
-
-        async function efetuarFechamentoCaixaCompleto() {
-            if(confirm("Deseja fazer o fechamento de caixa? Isso limpa o registro de entradas.")) {
-                await fetch(`${API_URL}/vendas`, { method: 'DELETE' });
-                location.reload();
+        // Atalhos de Teclado Rápidos para Operador de Caixa Profissional
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'F9') { // F9 vai direto para fechar venda
+                e.preventDefault();
+                abrirModalPagamento();
             }
-        }
+            if (e.key === 'Escape') { // ESC cancela a operação corrente
+                limparCarrinhoCompleto();
+            }
+        });
 
-        // FUNÇÕES INTERNAS DE TELA (NÃO PRECISARAM DE MUDANÇA NA LÓGICA)
-        function renderizarInterfaceGeral() {
-            atualizarCardapio();
-            atualizarTabelaEstoque();
-            atualizarPainelComandas();
-            atualizarSelectFichaComanda();
-            atualizarFinanceiroELogs();
-            atualizarTabelaUsuariosVisual();
-            if(comandaSelecionadaId !== null) exibirDetalhesComanda(comandaSelecionadaId);
-        }
+        // Loop de Relógio Comercial
+        setInterval(() => {
+            const data = new Date();
+            document.getElementById('clock').innerText = data.toLocaleDateString('pt-BR') + ' ' + data.toLocaleTimeString('pt-BR');
+        }, 1000);
 
-        function atualizarTabelaUsuariosVisual() {
-            const tbody = document.getElementById('tabela-usuarios-autorizados');
-            if(!tbody) return; tbody.innerHTML = '';
-            usuarios.forEach(u => {
-                tbody.innerHTML += `<tr><td><strong>${u.usuario}</strong></td><td>${u.cargo}</td><td><button class="btn-danger" style="padding:2px 6px; font-size:10px;" onclick="deletarUsuario('${u.usuario}')">Remover</button></td></tr>`;
-            });
-        }
-
-        function atualizarCardapio(listaFiltrada = null) {
-            const div = document.getElementById('cardapio'); div.innerHTML = '';
-            const lista = listaFiltrada || produtos;
-            lista.forEach(p => {
-                div.innerHTML += `<div class="card-prod" onclick="adicionarAoCarrinhoBalcao(${p.id})"><span class="badge-estoque">Est: ${p.estoque}</span><div class="nome-item" style="margin-top:8px;">${p.nome}</div><p style="color:var(--primary); font-weight:700; margin-top:4px;">R$ ${p.preco.toFixed(2)}</p></div>`;
-            });
-        }
-
-        function filtrarProdutos() { const t = document.getElementById('search-input').value.toLowerCase(); atualizarCardapio(produtos.filter(p => p.nome.toLowerCase().includes(t))); }
-
-        function adicionarAoCarrinhoBalcao(id) {
-            const prod = produtos.find(p => p.id === id);
-            const jaNoCarrinho = carrinho.find(i => i.id === id)?.qtd || 0;
-            if(prod.estoque <= jaNoCarrinho) return alert("Sem estoque disponível.");
-            const exist = carrinho.find(i => i.id === id);
-            if(exist) { exist.qtd++; exist.subtotal = exist.qtd * exist.preco; }
-            else { carrinho.push({ id: prod.id, nome: prod.nome, preco: prod.preco, qtd: 1, subtotal: prod.preco }); }
-            atualizarCarrinhoVisual();
-        }
-
-        function removerItemCarrinhoBalcao(index) { carrinho.splice(index, 1); atualizarCarrinhoVisual(); }
-
-        function atualizarCarrinhoVisual() {
-            const tbody = document.getElementById('itens-carrinho'); tbody.innerHTML = '';
-            let tot = 0;
-            carrinho.forEach((item, i) => { tot += item.subtotal; tbody.innerHTML += `<tr><td>${item.nome}</td><td>${item.qtd}x</td><td>R$ ${item.subtotal.toFixed(2)}</td><td><button class="btn-danger" style="padding:2px 5px;" onclick="removerItemCarrinhoBalcao(${i})">x</button></td></tr>`; });
-            document.getElementById('total-venda').innerText = tot.toFixed(2);
-            calcularTroco('balcao');
-        }
-
-        function atualizarPainelComandas() {
-            const div = document.getElementById('lista-comandas'); div.innerHTML = '';
-            comandas.forEach(c => { div.innerHTML += `<div class="card-comanda" onclick="exibirDetalhesComanda(${c.id})"><strong>Mesa: ${c.identificador}</strong><div style="font-size:18px; font-weight:800; margin-top:4px;">R$ ${c.total.toFixed(2)}</div></div>`; });
-        }
-
-        function atualizarSelectFichaComanda() {
-            const s = document.getElementById('select-add-item-comanda'); if(!s) return;
-            s.innerHTML = '<option value="">➕ Lançar item na conta...</option>';
-            produtos.forEach(p => s.innerHTML += `<option value="${p.id}">${p.nome} (R$ ${p.preco.toFixed(2)})</option>`);
-        }
-
-        function exibirDetalhesComanda(id) {
-            comandaSelecionadaId = id; const comanda = comandas.find(c => c.id === id);
-            if(!comanda) { fecharPainelLateralComanda(); return; }
-            document.getElementById('panel-controle-comanda').style.background = "#fffdf9";
-            document.getElementById('detalhe-titulo').innerText = `Consumo: ${comanda.identificador}`;
-            document.getElementById('conteudo-comanda-selecionada').style.display = "flex";
-            const tbody = document.getElementById('itens-comanda-corrente'); tbody.innerHTML = '';
-            comanda.itens.forEach(i => { tbody.innerHTML += `<tr><td>${i.nome}</td><td>${i.qtd}x</td><td>R$ ${i.subtotal.toFixed(2)}</td></tr>`; });
-            document.getElementById('total-comanda-corrente').innerText = comanda.total.toFixed(2);
-            calcularTroco('comanda');
-        }
-
-        function fecharPainelLateralComanda() { document.getElementById('conteudo-comanda-selecionada').style.display = "none"; document.getElementById('detalhe-titulo').innerText = "Nenhuma Selecionada"; }
-        function toggleTroco(tipo) { const f = document.getElementById(tipo === 'balcao' ? 'forma-pagamento' : 'forma-pagamento-comanda').value; const inp = document.getElementById(tipo === 'balcao' ? 'valor-recebido' : 'valor-recebido-comanda'); inp.disabled = (f !== 'Dinheiro'); if(f !== 'Dinheiro') inp.value = ''; calcularTroco(tipo); }
-        function calcularTroco(tipo) { const tot = parseFloat(document.getElementById(tipo === 'balcao' ? 'total-venda' : 'total-comanda-corrente').innerText) || 0; const rec = parseFloat(document.getElementById(tipo === 'balcao' ? 'valor-recebido' : 'valor-recebido-comanda').value) || 0; const troco = rec - tot; document.getElementById(tipo === 'balcao' ? 'valor-troco' : 'valor-troco-comanda').innerText = troco > 0 ? troco.toFixed(2) : '0.00'; }
-        
-        function iniciarEdicaoProduto(id) {
-            const p = produtos.find(item => item.id === id); if(!p) return;
-            document.getElementById('p-id-edicao').value = p.id; document.getElementById('p-nome').value = p.nome; document.getElementById('p-preco').value = p.preco; document.getElementById('p-estoque').value = p.estoque;
-            document.getElementById('form-prod-titulo').innerText = `✏️ Editando Item #${p.id}`; document.getElementById('btn-cancelar-edicao').style.display = 'inline-flex';
-        }
-        function cancelarEdicaoProduto() { limparFormProduto(); document.getElementById('form-prod-titulo').innerText = "Cadastrar Novo Item"; document.getElementById('btn-cancelar-edicao').style.display = 'none'; }
-        function limparFormProduto() { document.getElementById('p-id-edicao').value = ''; document.getElementById('p-nome').value = ''; document.getElementById('p-preco').value = ''; document.getElementById('p-estoque').value = ''; }
-
-        function atualizarTabelaEstoque() {
-            const tbody = document.getElementById('tabela-estoque-geral'); tbody.innerHTML = '';
-            produtos.forEach(p => {
-                tbody.innerHTML += `<tr><td><strong>#${p.id}</strong></td><td>${p.nome}</td><td>R$ ${p.preco.toFixed(2)}</td><td style="${p.estoque <= 5 ? 'color:var(--danger);font-weight:700;' : ''}">${p.estoque} un</td><td><button class="btn-warning" style="padding:4px 8px; font-size:11px;" onclick="iniciarEdicaoProduto(${p.id})">Editar</button><button class="btn-danger" style="padding:4px 8px; font-size:11px;" onclick="deletarProduto(${p.id})">Deletar</button></td></tr>`;
-            });
-        }
-
-        function atualizarFinanceiroELogs() {
-            const filtro = document.getElementById('filtro-periodo').value; const hoje = new Date();
-            let vendasFiltradas = historicoVendas.filter(v => {
-                let dataVenda = new Date(v.timestamp);
-                if(filtro === "diario") return dataVenda.toDateString() === hoje.toDateString();
-                if(filtro === "mensal") return dataVenda.getMonth() === hoje.getMonth() && dataVenda.getFullYear() === hoje.getFullYear();
-                return true;
-            });
-
-            let totalFat = vendasFiltradas.reduce((acc, v) => acc + v.total, 0);
-            let qtdPed = vendasFiltradas.length; let ticket = qtdPed > 0 ? (totalFat / qtdPed) : 0;
-            document.getElementById('m-faturamento').innerText = `R$ ${totalFat.toFixed(2)}`; document.getElementById('m-pedidos').innerText = qtdPed; document.getElementById('m-ticket').innerText = `R$ ${ticket.toFixed(2)}`;
-
-            let metodos = { Dinheiro: 0, Pix: 0, "Cartão de Crédito": 0, "Cartão de Débito": 0 };
-            vendasFiltradas.forEach(v => { if(metodos[v.formaPagamento] !== undefined) metodos[v.formaPagamento] += v.total; });
-            const divGraph = document.getElementById('dashboard-metodos-grafico'); divGraph.innerHTML = '';
-            Object.keys(metodos).forEach(m => {
-                let perc = totalFat > 0 ? (metodos[m] / totalFat) * 100 : 0;
-                divGraph.innerHTML += `<div class="chart-bar-container"><div class="chart-bar-label">${m}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${perc}%"></div></div><div style="font-weight:700; width:70px; text-align:right;">R$ ${metodos[m].toFixed(2)}</div></div>`;
-            });
-
-            const logBox = document.getElementById('log-display'); logBox.innerHTML = '';
-            [...logsAtividades].reverse().forEach(l => logBox.innerHTML += `<div><span style="color:var(--warning)">[${l.hora}]</span> ${l.txt}</div>`);
-
-            const tbody = document.getElementById('tabela-historico'); tbody.innerHTML = '';
-            vendasFiltradas.forEach(v => {
-                let desc = v.itens.map(i => `${i.nome} (x${i.qtd})`).join(', ');
-                tbody.innerHTML += `<tr><td>#${v.id}</td><td>${v.data}</td><td>${v.operador || 'Sistema'}</td><td><small>${desc}</small></td><td>${v.formaPagamento}</td><td><strong>R$ ${v.total.toFixed(2)}</strong></td><td><button class="btn-primary" style="padding:2px 6px; font-size:10px;" onclick='reimprimirCupomHistorial(${JSON.stringify(v)})'>🖨️</button></td></tr>`;
-            });
-        }
-
-        function reimprimirCupomHistorial(vendaObjeto) { imprimirCupomFrenteCaixa(vendaObjeto); }
-        function switchTab(tabId) { document.querySelectorAll('.main-container').forEach(c => c.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active')); document.getElementById(`tab-${tabId}`).classList.add('active'); if(event) event.currentTarget.classList.add('active'); }
-        window.onload = function() { carregarDadosDoBanco(); setInterval(() => { document.getElementById('clock').innerText = new Date().toLocaleString('pt-BR'); }, 1000); };
-
-        function imprimirCupomFrenteCaixa(venda) {
-            const area = document.getElementById('secao-impressao');
-            let txt = `<div class="txt-centro"><h3>🍔 PRA COMER GOURMET</h3><hr><strong>CUPOM NÃO FISCAL</strong><br>Data: ${venda.data}<br>Operador: ${venda.operador}<hr></div><table><thead><tr><th>Item</th><th>Qtd</th><th class="txt-direita">Sub</th></tr></thead><tbody>`;
-            venda.itens.forEach(i => { txt += `<tr><td>${i.nome}</td><td>${i.qtd}x</td><td class="txt-direita">R$ ${i.subtotal.toFixed(2)}</td></tr>`; });
-            txt += `</tbody></table><hr><div class="txt-direita" style="font-size:14px;"><strong>TOTAL PAGO: R$ ${venda.total.toFixed(2)}</strong><br><small>Forma: ${venda.formaPagamento}</small></div><hr>`;
-            area.innerHTML = txt; window.print();
-        }
+        window.onload = () => {
+            renderizarCardapio();
+        };
     </script>
 </body>
 </html>
